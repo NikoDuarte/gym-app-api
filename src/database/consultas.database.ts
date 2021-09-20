@@ -22,13 +22,13 @@
     /**
      * SELECT * FROM users as u INNER JOIN medico as m ON u._id = m.id_user WHERE u._id = 7
      */
-    const findCompost = (proyec: string, schema: string, join: string, onJoin: string, quest: string) => {
+    const findCompost = (proyec: string, schema: string, join: string, quest: string) => {
         //* |-> Retornaremos una promesa que resolvera el la data de la consulta
         return new Promise((resolve, reject) => {
             //* |-> Realizamos la conexion y la consulta nesesaria
             connet.query(
                 //* |-> Sentencia sql
-                `SELECT ${proyec} FROM ${schema} INNER JOIN ${join} ON ${onJoin} WHERE ${quest}`,
+                `SELECT ${proyec} FROM ${schema} ${join} WHERE ${quest}`,
                 //* |-> Nos retornara un error o el resultado de la consulta
                 (err, rows) => {
                     //* |-> Si existe un error lo retornamos y matamos el proceso
