@@ -104,7 +104,7 @@
         try {
             //* |-> Buscaremos al usuario en el sistema
             const findUserId: any = await findCompost(
-                '*', 'users as u', 'medico as m', 'u._id = m.id_user', `u._id = ${id}`
+                '*', 'users as u', 'INNER JOIN medico as m ON u._id = m.id_user', `u._id = ${id}`
             )
             //* |-> Si no encuentra ningun resultado devolveremos un 404
             if (!findUserId || findUserId.length === 0) {

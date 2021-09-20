@@ -76,9 +76,39 @@ const  validAdminRole = async(req: Request | any, res: Response, next: NextFunct
         )
     }
 }
+//? -_ Funcion que validara que el usuario sea administrador
+const  validEntreRole = async(req: Request | any, res: Response, next: NextFunction) => {
+    //* |-> Extraemos el id de la request
+    const uid: string = req.uid
+    //* |-> Control de errores trycatch
+    try {
+        //* |-> Comprobamos que el usuario sea de role admin
+        const findUserId: any = await find('users', '*', `_id = '${uid}' AND role = 'ENTRE-ROLE'`)
+        //* |-> Si no cumple la condicion responderemos 401
+        if (!findUserId || findUserId.length === 0) {
+            return $response(res, {status: 401, succ: false, msg: 'Peticion no autorizada'})
+        }
+        //* |-> Si si retorna datos continuaremos con la funcionalidad
+        next()
+    } catch (err) {
+        //*! Imprimimos el error por consola
+        console.log(err);
+        //*! Retornaremos una respuesta servidor cliente con status 500
+        $response(
+            res,
+            {
+                status: 500,
+                succ: false,
+                msg: 'Ocurrio un problema... Verifica los logs'
+            }
+        )
+    }
+}
+
 /************/
 // TODO: Exportacion del modulo
 export {
     validJWT,
-    validAdminRole
+    validAdminRole,
+    validEntreRole
 }
