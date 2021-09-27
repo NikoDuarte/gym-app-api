@@ -105,6 +105,7 @@
             const class_ = findClassUserId.map(
                 (e: any) => {
                     return {
+                        _id: e._id,
                         title: e.title,
                         descripcion: e.descripcion,
                         cupos: e.cupos
@@ -114,7 +115,7 @@
             //* |-> Retornaremos exito al cliente junto con las clases encontradas
             $response(
                 res,
-                { succ: false, status: 500, msg: 'Busqueda exitosa!!', data: class_ }
+                { succ: false, status: 200, msg: 'Busqueda exitosa!!', data: class_ }
             )
         } catch (err) {
             //*! Imprimimos el error por consola
@@ -138,6 +139,7 @@
             const class_ = findAllClass.map(
                 (e: any) => {
                     return {
+                        _id: e._id,
                         title: e.title,
                         descripcion: e.descripcion,
                         cupos: e.cupos
@@ -174,10 +176,12 @@
             )
             //* |-> Si no encuentra ningun resultado
             if(findClassUser.length === 0) return $response(res, { status: 404, succ: false, msg: 'Parece que no estas inscrito a ninguna clase' })
-            //* |-> Si si encuentra data mappearemos la informacion mas relevante
+            //* |-> Si si encuentra data mappearemos la informacion mas relevante            
             const class_ = findClassUser.map(
                 (e: any) => {
                     return {
+                        _id: e._id,
+                        id_class: e.id_clase,
                         name_entre: e.name,
                         title: e.title,
                         descripcion: e.descripcion,

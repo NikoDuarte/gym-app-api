@@ -38,7 +38,7 @@
             const encode = bcrypt.genSaltSync()
             const new_pass = bcrypt.hashSync(password, encode)
             //* |-> Si no existe el usuario creamos uno nuevo
-            const new_user: any = await save('users', `name, email, phone, password, role`, `'${name}', '${email}', '${phone}', '${new_pass}', '${role}'`)
+            const new_user: any = await save('users', `name, email, phone, password, role`, `'${name}', '${email}', '${phone}', '${new_pass}', '${role == '' ? 'DEFAULT-ROLE' : role}'`)
             //* |-> Creamos el añadido del usuario (medico)
             const findMedicoUserId: any = await find('medico', '*', `id_user = '${new_user}'`)
             //* |-> Si retorna algun dato responderemos que el añadido ya se encuentra en el sistema
@@ -52,7 +52,19 @@
             //* |-> Generaremos el token
             const token = await generateJWT(new_user, '4h')
             //* |-> Respondemos al usuario con exito
-            return $response(res, {status: 200, succ: true, msg: 'Usuario creado correctamente', data: token})
+            return $response(
+                res, 
+                {
+                    status: 200, 
+                    succ: true, 
+                    msg: 'Usuario creado correctamente',
+                    //* |-> Retornara
+                    data: {
+                        //* |-> Token generado
+                        token
+                    }
+                }
+            )
         } catch (err) {
             //*! Imprimimos el error por consola
             console.log(err);
@@ -191,6 +203,20 @@
         const { id } = req.params
         //* |-> Control de errores tryCatch
         try {
+            //* |-> Buscaremos si el usuario esta inscrito en alguna clase
+            const findUserDeleteIns: any = await find('clase_ins', '*', `id_user = ${id}`)
+            //* |-> Si encuntra algun resultado
+            if (findUserDeleteIns || findUserDeleteIns.length > 0) {
+                //* |-> Eliminaremos la relacion que se encuentra en la clase de inscripcion
+                await findByIdAndDelete('clase_ins', `id_user = ${id}`)
+            }
+            //* |-> Buscaremos si algun usuario tiene alguna clase creada
+            const findUserDeleteClass: any = await find('clases', '*', `id_entrenador = ${id}`)
+            //* |-> Si encuntra algun resultado
+            if (findUserDeleteClass || findUserDeleteClass.length > 0) {
+                //* |-> Eliminaremos la relacion que se encuentra en la clase de inscripcion
+                await findByIdAndDelete('clases', `id_entrenador = ${id}`)
+            }
             //* |-> Eliminamos la relacion que se encuentra en medico para la info adicional
             await findByIdAndDelete('medico', `id_user = '${id}'`)
             //* |-> Eliminamos el usuario permanentemente del sistema

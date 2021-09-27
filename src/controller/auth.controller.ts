@@ -18,6 +18,7 @@
     import { _email_ } from '../environments/environments';
     //* |-> Servicios envio de emial
     import { newEmailSend } from '../service/mailer.service';
+    import { getSideBar } from '../helper/menu.helper';
 /***********/
 // TODO: Definicion de controladores para la funcion de las rutas rest
     //? -_ Funcion que realizara el login de un usuario
@@ -42,7 +43,8 @@
                         _id: e._id,
                         name: e.name,
                         email: e.email,
-                        password: e.password
+                        password: e.password,
+                        role: e.role
                     }
                 }
             )
@@ -53,7 +55,7 @@
             //* |-> Si toda la informacion esta bien generaremos el token de ingreso
             const token = await generateJWT(user[0]._id, '4h')
             //* |-> Respondemos exito al usuario junto con el token
-            $response(res, { status: 200, succ: true, msg: `Bienvenido ${user[0].name}`, data: token })
+            $response(res, { status: 200, succ: true, msg: `Bienvenido ${user[0].name}`, data: {token, menu: getSideBar(user[0].role)} })
         } catch (err) {
             //*! Imprimimos el error por consola
             console.log(err);
@@ -70,12 +72,25 @@
         const { uid }: any = req
         //* |-> Control de errores tryCatch
         try {
+            //* |-> Buscamos el usuario por el id suministrado
+            const findUserEmail: any = await find('users', '*', `_id = '${uid}'`)
+            //* |-> Mappeamos el resultado con el fin de dejar la informacion mas relevante dentro del arreglo que retorna
+            const user = findUserEmail.map(
+                (e: any) => {
+                    return {
+                        _id: e._id,
+                        name: e.name,
+                        email: e.email,
+                        role: e.role
+                    }
+                }
+            )
             //* |-> Generaremos el nuevo token
             const new_token = await generateJWT(uid, '5h')
             //* |-> Respondemos al usuario un mensaje de exito junto con el token
             $response(
                 res,
-                { status: 200, succ: true, msg: 'Renovacion exitosa', data: new_token }
+                { status: 200, succ: true, msg: 'Renovacion exitosa', data: {token: new_token, user} }
             )
         } catch (err) {
             //*! Imprimimos el error por consola
